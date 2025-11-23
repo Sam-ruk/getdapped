@@ -193,7 +193,7 @@ function CategorySceneContent({ category, sphereColor, dappsData, onDappClick }:
       <OrbitControls 
         ref={controlsRef}
         enablePan={true}
-        enableZoom={true}
+        enableZoom={false}
         enableRotate={true}
         enabled={!isAnimating.current}
         makeDefault
