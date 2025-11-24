@@ -264,6 +264,8 @@ export default function MainScene({ scrollRef, onSphereClick }: MainSceneProps) 
   const [scrollTime, setScrollTime] = useState(0);
   const [showScrollText, setShowScrollText] = useState(true);
   const [showAllInOne, setShowAllInOne] = useState(false);
+  const [hasShownJustScroll, setHasShownJustScroll] = useState(false);
+  const [hasShownAllInOne, setHasShownAllInOne] = useState(false);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -273,12 +275,21 @@ export default function MainScene({ scrollRef, onSphereClick }: MainSceneProps) 
   }, [scrollRef]);
 
   useEffect(() => {
-    if (scrollTime >= 21) {
-      setShowAllInOne(true);
-    } else {
-      setShowAllInOne(false);
+    if (scrollTime < 4 && !hasShownJustScroll) {
+      setShowScrollText(true);
+      setHasShownJustScroll(true);
     }
-  }, [scrollTime]);
+    
+    if (scrollTime >= 21 && !hasShownAllInOne) {
+      setShowAllInOne(true);
+      setHasShownAllInOne(true);
+    }
+    
+    if (scrollTime < 20 && hasShownAllInOne) {
+      setShowAllInOne(false);
+      setHasShownAllInOne(false);
+    }
+  }, [scrollTime, hasShownJustScroll, hasShownAllInOne]);
 
   const navbarOpacity = scrollTime >= 21 ? 1 : 0;
 

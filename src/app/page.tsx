@@ -11,6 +11,7 @@ export default function Page() {
   const [sphereColor, setSphereColor] = useState<THREE.Color | null>(null);
   const [pausedScrollTime, setPausedScrollTime] = useState(11);
   const [dappsData, setDappsData] = useState<DappsCollection>({});
+  const [isTransitioning, setIsTransitioning] = useState(false);
 
   useEffect(() => {
     fetch('/dapps.json')
@@ -26,7 +27,7 @@ export default function Page() {
   }, []);
 
   useEffect(() => {
-    if (selectedCategory === null) {
+    if (selectedCategory === null && !isTransitioning) {
       function updateScroll() {
         const h = document.body.scrollHeight - window.innerHeight;
         const pct = h > 0 ? window.scrollY / h : 0;
@@ -36,7 +37,7 @@ export default function Page() {
       window.addEventListener("scroll", updateScroll);
       return () => window.removeEventListener("scroll", updateScroll);
     }
-  }, [selectedCategory]);
+  }, [selectedCategory, isTransitioning]);
 
   const handleSphereClick = (categoryIndex: number, color: THREE.Color) => {
     setPausedScrollTime(scrollRef.current);
@@ -53,16 +54,19 @@ export default function Page() {
   };
 
   const handleBack = () => {
+    setIsTransitioning(true);
     setSelectedCategory(null);
     setSphereColor(null);
+    
     setTimeout(() => {
+      setIsTransitioning(false);
       const h = document.body.scrollHeight - window.innerHeight;
       if (h > 0) {
         const targetScroll = (pausedScrollTime / 22) * h;
         window.scrollTo(0, targetScroll);
       }
       scrollRef.current = pausedScrollTime;
-    }, 100);
+    }, 50);
   };
 
   return (
@@ -71,15 +75,18 @@ export default function Page() {
       background: "#000", 
       position: 'relative' 
     }}>
-      {selectedCategory ? (
+      {!isTransitioning && selectedCategory && (
         <CategoryScene 
+          key={selectedCategory}
           category={selectedCategory}
           sphereColor={sphereColor}
           dappsData={dappsData[selectedCategory] || []}
           onBack={handleBack}
         />
-      ) : (
+      )}
+      {!isTransitioning && !selectedCategory && (
         <MainScene 
+          key="main-scene"
           scrollRef={scrollRef} 
           onSphereClick={handleSphereClick}
         />

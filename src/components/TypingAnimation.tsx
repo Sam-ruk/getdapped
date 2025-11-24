@@ -13,6 +13,15 @@ export default function TypingAnimation({ category }: TypingAnimationProps) {
   
   useEffect(() => {
     audioRef.current = new Audio('/typing.mp3');
+    
+    // Cleanup
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0;
+        audioRef.current = null;
+      }
+    };
   }, []);
 
   useEffect(() => {
@@ -32,13 +41,28 @@ export default function TypingAnimation({ category }: TypingAnimationProps) {
           currentIndex++;
         } else {
           clearInterval(typingInterval);
+          if (audioRef.current) {
+            audioRef.current.pause();
+            audioRef.current.currentTime = 0;
+          }
           setPhase('pausing');
         }
       }, 150);
-      return () => clearInterval(typingInterval);
+      return () => {
+        clearInterval(typingInterval);
+        if (audioRef.current) {
+          audioRef.current.pause();
+          audioRef.current.currentTime = 0;
+        }
+      };
     }
     
     if (phase === 'pausing') {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0;
+      }
+      
       const pauseTimer = setTimeout(() => {
         setPhase('deleting');
       }, 1000);
@@ -52,13 +76,32 @@ export default function TypingAnimation({ category }: TypingAnimationProps) {
       const deleteInterval = setInterval(() => {
         if (currentIndex >= 0) {
           setDisplayText(categoryUpper.slice(0, currentIndex));
+          
+          if (currentIndex > 0 && audioRef.current) {
+            audioRef.current.currentTime = 0;
+            audioRef.current.play().catch(err => console.log('Audio play failed:', err));
+          } else if (currentIndex === 0 && audioRef.current) {
+            audioRef.current.pause();
+            audioRef.current.currentTime = 0;
+          }
+          
           currentIndex--;
         } else {
           clearInterval(deleteInterval);
+          if (audioRef.current) {
+            audioRef.current.pause();
+            audioRef.current.currentTime = 0;
+          }
           setPhase('done');
         }
       }, 100);
-      return () => clearInterval(deleteInterval);
+      return () => {
+        clearInterval(deleteInterval);
+        if (audioRef.current) {
+          audioRef.current.pause();
+          audioRef.current.currentTime = 0;
+        }
+      };
     }
   }, [category, phase]);
 
