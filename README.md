@@ -1,36 +1,82 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Get Dapped
 
-## Getting Started
+An immersive 3D interactive experience showcasing the Monad blockchain ecosystem and its dapps.
 
-First, run the development server:
+## 📌 Features
 
+**Scroll-Driven 3D Animation**
+- Cinematic animation and camera movements synchronized with page scroll.
+
+## 🛠 Tech Stack
+
+**Frontend**: Next.js, TypeScript, React Three Fiber.
+
+**3D Assets**: Blender for modeling and animation, assets exported in GLTF/GLB format.
+
+## ⚙️ Setup & Installation
+
+**Prerequisites**
+- Node.js 
+- npm, yarn, or pnpm
+
+**Installation**
+
+Clone the repository:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/Sam-ruk/getdapped
+cd getdapped
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Install dependencies:
+```bash
+npm install
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Run the development server:
+```bash
+npm run dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Open [http://localhost:3000](http://localhost:3000) in your browser and start scrolling.
 
-## Learn More
+## 📂 Project Structure
 
-To learn more about Next.js, take a look at the following resources:
+```
+/getdapped
+├── /app
+│   └── page.tsx                 # Main page with scene switching logic
+├── /components
+│   ├── MainScene.tsx            # Scroll-based 3D animation scene
+│   ├── CategoryScene.tsx        # Category detail view with dApp explorer
+│   └── TypingAnimation.tsx      # Animated typing text with sound
+├── /types
+│   └── index.ts                 # TypeScript type definitions
+├── /public
+│   ├── model.glb                # Main 3D scene (created in Blender)
+│   ├── show_2.glb               # Category scene (created in Blender)
+│   ├── dapps.json               # dApp info list
+│   ├── typing.mp3               # Typing sound effect
+│   ├── accelerada.mp3           # phonk music
+│   ├── trollface.png            # surprise image ;)
+│   └── [category].png           # Category image sprites used by the showcase glb model
+├── next.config.js               # Next.js config
+├── tsconfig.json                # TypeScript config
+└── README.md                    # Project documentation
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 🔑 Key Components
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+**MainScene**
+- Controls the 3D animation based on page scroll.
+- Detects button clicks and triggers dapp category selection.
 
-## Deploy on Vercel
+**CategoryScene**
+- Displays 3D showcase with dApp information.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+**TypingAnimation**
+- Animated typing effect with blinking cursor.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+## ✨ Credits
+
+Built with [Blender](https://www.blender.org/), [Three.js](https://threejs.org/) and [React Three Fiber](https://docs.pmnd.rs/react-three-fiber/).
