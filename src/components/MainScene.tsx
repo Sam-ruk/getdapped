@@ -275,11 +275,13 @@ export default function MainScene({ scrollRef, onSphereClick }: MainSceneProps) 
   }, [scrollRef]);
 
   useEffect(() => {
-    if (scrollTime < 4 && !hasShownJustScroll) {
+    if (!hasShownJustScroll) {
       setShowScrollText(true);
       setHasShownJustScroll(true);
     }
-    
+  }, [hasShownJustScroll]);
+
+  useEffect(() => {
     if (scrollTime >= 21 && !hasShownAllInOne) {
       setShowAllInOne(true);
       setHasShownAllInOne(true);
@@ -289,7 +291,7 @@ export default function MainScene({ scrollRef, onSphereClick }: MainSceneProps) 
       setShowAllInOne(false);
       setHasShownAllInOne(false);
     }
-  }, [scrollTime, hasShownJustScroll, hasShownAllInOne]);
+  }, [scrollTime, hasShownAllInOne]);
 
   const navbarOpacity = scrollTime >= 21 ? 1 : 0;
 
