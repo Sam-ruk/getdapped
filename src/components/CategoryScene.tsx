@@ -21,7 +21,7 @@ const PLANE_ORDER = [
   'Plane043_1'
 ];
 
-function CategorySceneContent({ category, sphereColor, dappsData, onDappClick }: Omit<CategorySceneProps, 'onBack'> & { onDappClick: (dapp: DappData | undefined) => void }) {
+function CategorySceneContent({ category, sphereColor, dappsData, onDappClick, onDappHover }: Omit<CategorySceneProps, 'onBack'> & { onDappClick: (dapp: DappData | undefined) => void; onDappHover: (dapp: DappData | undefined, e?: any) => void }) {
   const { scene, animations } = useGLTF("/show_2.glb");
   const { camera } = useThree();
   const [spriteIndex, setSpriteIndex] = useState(0);
@@ -179,6 +179,40 @@ function CategorySceneContent({ category, sphereColor, dappsData, onDappClick }:
     }
   };
 
+  const handlePointerMove = (e: any) => {
+    e.stopPropagation();
+    
+    let hoveredObject = e.object;
+    let foundPlane = null;
+    
+    while (hoveredObject) {
+      if (hoveredObject.userData?.isPlane) {
+        foundPlane = hoveredObject;
+        break;
+      }
+      hoveredObject = hoveredObject.parent;
+    }
+
+    if (foundPlane) {
+      const dapp = getDappForPlane(foundPlane.userData.planeIndex as number);
+      if (dapp) {
+        onDappHover(dapp, e);
+        document.body.style.cursor = 'pointer';
+      } else {
+        onDappHover(undefined);
+        document.body.style.cursor = 'default';
+      }
+    } else {
+      onDappHover(undefined);
+      document.body.style.cursor = 'default';
+    }
+  };
+
+  const handlePointerLeave = () => {
+    onDappHover(undefined);
+    document.body.style.cursor = 'default';
+  };
+
   return (
     <>
       <ambientLight intensity={1} />
@@ -187,7 +221,12 @@ function CategorySceneContent({ category, sphereColor, dappsData, onDappClick }:
       <pointLight position={[0, 4, 0]} intensity={2} distance={10} />
       
       <Center position={[0, 0, 0]}>
-        <primitive object={scene} onPointerDown={handlePointerDown} />
+        <primitive 
+          object={scene} 
+          onPointerDown={handlePointerDown}
+          onPointerMove={handlePointerMove}
+          onPointerLeave={handlePointerLeave}
+        />
       </Center>
 
       <OrbitControls 
@@ -205,10 +244,20 @@ function CategorySceneContent({ category, sphereColor, dappsData, onDappClick }:
 export default function CategoryScene({ category, sphereColor, dappsData, onBack }: CategorySceneProps) {
   const [selectedDapp, setSelectedDapp] = useState<DappData | null>(null);
   const [showTrollface, setShowTrollface] = useState(false);
+  const [hoveredDapp, setHoveredDapp] = useState<{ name: string; x: number; y: number } | null>(null);
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
     audioRef.current = new Audio('/accelerada.mp3');
+  }, []);
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      setMousePos({ x: e.clientX, y: e.clientY });
+    };
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
   }, []);
 
   const handleDappClick = (dapp: DappData | undefined) => {
@@ -224,6 +273,18 @@ export default function CategoryScene({ category, sphereColor, dappsData, onBack
           setShowTrollface(false);
         };
       }
+    }
+  };
+
+  const handleDappHover = (dapp: DappData | undefined, e?: any) => {
+    if (dapp) {
+      setHoveredDapp({
+        name: dapp.name,
+        x: mousePos.x,
+        y: mousePos.y
+      });
+    } else {
+      setHoveredDapp(null);
     }
   };
 
@@ -262,11 +323,11 @@ export default function CategoryScene({ category, sphereColor, dappsData, onBack
             sphereColor={sphereColor}
             dappsData={dappsData}
             onDappClick={handleDappClick}
+            onDappHover={handleDappHover}
           />
         </Canvas>
       </div>
 
-      {/* Trollface overlay */}
       {showTrollface && (
         <div 
           style={{
@@ -298,7 +359,6 @@ export default function CategoryScene({ category, sphereColor, dappsData, onBack
         </div>
       )}
 
-      {/* Dialog positioned in screen center using absolute positioning */}
       {selectedDapp && (
         <div 
           style={{
@@ -411,6 +471,28 @@ export default function CategoryScene({ category, sphereColor, dappsData, onBack
               </div>
             </div>
           </div>
+        </div>
+      )}
+
+      {hoveredDapp && (
+        <div
+          style={{
+            position: 'fixed',
+            left: `${hoveredDapp.x + 15}px`,
+            top: `${hoveredDapp.y + 15}px`,
+            background: 'rgba(0, 0, 0, 0.9)',
+            color: 'white',
+            padding: '8px 12px',
+            borderRadius: '4px',
+            fontSize: '14px',
+            fontWeight: 'bold',
+            pointerEvents: 'none',
+            zIndex: 9998,
+            whiteSpace: 'nowrap',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.5)'
+          }}
+        >
+          {hoveredDapp.name}
         </div>
       )}
     </>
